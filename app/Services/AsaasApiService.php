@@ -2,6 +2,7 @@
 
 namespace NotaFiscalForAsaas\Services;
 
+use NotaFiscalForAsaas\Config\Config;
 use WC_Logger;
 use WP_Error;
 
@@ -10,22 +11,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class AsaasApiService {
-    protected $api_url = 'https://sandbox.asaas.com/api/v3/invoices';
+    protected $api_url;
     protected $access_token;
     protected $logger;
     public $options;
 
     public function __construct( $access_token, $enable_logging = false ) {
-        // Sanitize access token
+        // Sanitizar token de acesso
         $this->access_token = sanitize_text_field( $access_token );
         
-        // Enable logging if necessary
+        // Carregar opções
+        $this->options = get_option( 'nf_asaas_options', array() );
+
+        // Determinar o ambiente e definir a URL da API
+        $environment = isset( $this->options['environment'] ) ? $this->options['environment'] : 'sandbox';
+        if ( $environment === 'production' ) {
+            $this->api_url = Config::ASAAS_API_URL_PRODUCTION . 'invoices';
+        } else {
+            $this->api_url = Config::ASAAS_API_URL_SANDBOX . 'invoices';
+        }
+
+        // Ativar logging se necessário
         if ( $enable_logging ) {
             $this->logger = wc_get_logger();
         }
-
-        // Load options if necessary
-        $this->options = get_option( 'nf_asaas_options', array() );
     }
 
     /**

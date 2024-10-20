@@ -2,6 +2,7 @@
 
 namespace NotaFiscalForAsaas\Services;
 
+use NotaFiscalForAsaas\Config\Config;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -9,19 +10,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class UpdateCustomerService {
-    protected $api_url_template = 'https://sandbox.asaas.com/api/v3/customers/%s';
+    protected $api_url_template;
     protected $access_token;
     protected $logger;
     public $options;
 
     public function __construct( $access_token, $enable_logging = false ) {
+        // Carregar opções
+        $this->options = get_option( 'nf_asaas_options', array() );
+
+        // Determinar o ambiente e definir a URL da API
+        $environment = isset( $this->options['environment'] ) ? $this->options['environment'] : 'sandbox';
+        if ( $environment === 'production' ) {
+            $base_url = Config::ASAAS_API_URL_PRODUCTION . 'customers/%s';
+        } else {
+            $base_url = Config::ASAAS_API_URL_SANDBOX . 'customers/%s';
+        }
+        $this->api_url_template = $base_url;
+
+        // Sanitizar token de acesso
         $this->access_token = sanitize_text_field( $access_token );
+
+        // Ativar logging se necessário
         if ( $enable_logging ) {
             $this->logger = wc_get_logger();
         }
-
-        // Load options if necessary
-        $this->options = get_option( 'nf_asaas_options', array() );
     }
 
     /**

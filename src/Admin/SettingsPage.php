@@ -1,4 +1,6 @@
 <?php
+// Admin/SettingsPage.php
+
 namespace NotaFiscalForAsaas\Admin;
 
 use NotaFiscalForAsaas\Controllers\InvoiceController;
@@ -63,6 +65,15 @@ class SettingsPage {
             'Configurações Principais',
             null,
             'nota-fiscal-for-asaas'
+        );
+
+        // Ambiente (Sandbox ou Produção)
+        add_settings_field(
+            'environment',
+            'Ambiente',
+            array( $this, 'environment_callback' ),
+            'nota-fiscal-for-asaas',
+            'nf_asaas_main_section'
         );
 
         // Enable Logging
@@ -150,6 +161,10 @@ class SettingsPage {
     public function sanitize_settings( $input ) {
         $sanitized = array();
 
+        // Ambiente
+        $allowed_environments = array( 'sandbox', 'production' );
+        $sanitized['environment'] = isset( $input['environment'] ) && in_array( $input['environment'], $allowed_environments, true ) ? $input['environment'] : 'sandbox';
+
         // Enable Logging
         $sanitized['enable_logging'] = isset( $input['enable_logging'] ) && $input['enable_logging'] === '1' ? '1' : '0';
 
@@ -190,6 +205,21 @@ class SettingsPage {
         }
 
         return $sanitized;
+    }
+
+    /**
+     * Callback para o campo Ambiente (Sandbox ou Produção).
+     */
+    public function environment_callback() {
+        $options = get_option( 'nf_asaas_options' );
+        $selected = isset( $options['environment'] ) ? $options['environment'] : 'sandbox';
+        ?>
+        <select id="environment" name="nf_asaas_options[environment]">
+            <option value="sandbox" <?php selected( 'sandbox', $selected ); ?>>Sandbox</option>
+            <option value="production" <?php selected( 'production', $selected ); ?>>Produção</option>
+        </select>
+        <p class="description">Selecione o ambiente para a API do Asaas.</p>
+        <?php
     }
 
     /**
