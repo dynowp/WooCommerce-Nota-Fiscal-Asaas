@@ -71,11 +71,11 @@ Com este plugin, você pode configurar as alíquotas fiscais, reter ISS, e autom
 ## Screenshots
 
 1. **Tela de Configurações:**
-   - Configure as opções de emissão automática, alíquotas fiscais e chave de API.
+Configure as opções de emissão automática, alíquotas fiscais e chave de API.
 ![Captura de tela 2024-10-20 004758](https://github.com/user-attachments/assets/bbe3e207-90da-4d8d-8b59-9608917aa5d7)
 
 2. **Ação "Emitir Nota Fiscal" no Pedido:**
-   - Botão disponível na página de pedidos para emissão manual da nota fiscal.
+Botão disponível na página de pedidos para emissão manual da nota fiscal.
 ![Captura de tela 2024-10-20 004852](https://github.com/user-attachments/assets/bf6d0d90-d431-4524-893a-fd88b7856ea6)
 
 
