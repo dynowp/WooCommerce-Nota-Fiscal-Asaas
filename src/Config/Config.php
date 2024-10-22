@@ -7,6 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Config {
-    const ASAAS_API_URL_PRODUCTION = 'https://asaas.com/api/v3/';
+    const ASAAS_API_URL_PRODUCTION = 'https://api.asaas.com/api/v3/';
     const ASAAS_API_URL_SANDBOX     = 'https://sandbox.asaas.com/api/v3/';
 }
