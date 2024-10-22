@@ -1,7 +1,7 @@
 # Plugin WooCommerce - Nota Fiscal para Asaas
 
 O **Asaas Nota Fiscal** é um plugin que integra o WooCommerce com o Asaas, permitindo a emissão automática ou manual de Notas Fiscais para pedidos realizados no WooCommerce. 
-Com este plugin, você pode configurar as alíquotas fiscais, reter ISS, e automatizar o processo de emissão de faturas diretamente no painel de pedidos do WooCommerce.
+Com este plugin, você pode configurar as alíquotas fiscais, reter ISS, e automatizar o processo de emissão de NFS-e diretamente no painel de pedidos do WooCommerce.
 
 ### Principais Funcionalidades:
 - **Emissão Automática de Nota Fiscal:** Configure para que a nota fiscal seja emitida automaticamente quando o pedido atingir um determinado status.
