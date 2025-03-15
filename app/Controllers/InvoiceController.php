@@ -4,12 +4,7 @@ namespace NotaFiscalForAsaas\Controllers;
 
 use NotaFiscalForAsaas\Services\AsaasApiService;
 use NotaFiscalForAsaas\Controllers\UpdateCustomerController;
-use WC_Order;
 use WP_Error;
-
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
 
 class InvoiceController {
     protected $asaas_service;
@@ -30,6 +25,7 @@ class InvoiceController {
      */
     public function emit_invoice_for_order( $order_id ) {
         $order = wc_get_order( $order_id );
+        error_log( 'order: ' . print_r($order, true) );
 
         if ( ! $order ) {
             if ( $this->enable_logging ) {
@@ -39,15 +35,11 @@ class InvoiceController {
         }
 
         $total = $order->get_total();
-        $formatted_total = number_format( floatval( $total ), 2, '.', '' ); // Format "00.00"
+        $formatted_total = number_format( floatval( $total ), 2, '.', '' );
 
-        // Build service description
         $service_description = 'Pedido #' . intval( $order_id );
 
-        // Observations: blank space
         $observations = ' ';
-
-        // Retrieve the Asaas ID from the order
         $asaas_id = $this->get_asaas_id_from_order( $order );
 
         if ( ! $asaas_id ) {
@@ -67,7 +59,6 @@ class InvoiceController {
             'iss'     => isset( $this->asaas_service->options['aliquota_iss'] ) ? floatval( $this->asaas_service->options['aliquota_iss'] ) : 0,
         );
 
-        // Build data array according to specifications
         $data = array(
             'serviceDescription'   => $service_description,
             'observations'         => $observations,
@@ -79,11 +70,9 @@ class InvoiceController {
             'payment'              => $asaas_id,
         );
 
-        // Attempt to issue the invoice
         $response = $this->asaas_service->emit_invoice( $data );
 
         if ( is_wp_error( $response ) ) {
-            // Check if the error is related to an incomplete address
             if (
                 $response->get_error_code() === 'api_error' &&
                 strpos( $response->get_error_message(), 'invalid_action' ) !== false &&
@@ -93,7 +82,6 @@ class InvoiceController {
                     wc_get_logger()->info( "Endereço do cliente incompleto para Pedido ID {$order_id}. Tentando atualizar o cliente.", array( 'source' => 'NotaFiscalForAsaas' ) );
                 }
 
-                // Delegate customer update to UpdateCustomerController
                 $update_success = $this->update_customer_controller->update_customer_before_invoice( $order_id );
 
                 if ( ! $update_success ) {
@@ -107,7 +95,6 @@ class InvoiceController {
                     wc_get_logger()->info( "Cliente atualizado com sucesso na Asaas para o Pedido ID {$order_id}. Tentando emitir a nota fiscal novamente.", array( 'source' => 'NotaFiscalForAsaas' ) );
                 }
 
-                // Attempt to issue the invoice again
                 $response = $this->asaas_service->emit_invoice( $data );
 
                 if ( is_wp_error( $response ) ) {
@@ -124,9 +111,20 @@ class InvoiceController {
             }
         }
 
-        // Store the issued invoice ID
         if ( isset( $response['id'] ) ) {
             update_post_meta( $order_id, '_NotaFiscalForAsaas_invoice_id', sanitize_text_field( $response['id'] ) );
+            
+            if ( isset( $response['status'] ) ) {
+                update_post_meta( $order_id, '_NotaFiscalForAsaas_status', sanitize_text_field( $response['status'] ) );
+            }
+            
+            if ( isset( $response['pdfUrl'] ) ) {
+                update_post_meta( $order_id, '_NotaFiscalForAsaas_pdf_url', esc_url_raw( $response['pdfUrl'] ) );
+            }
+            
+            if ( isset( $response['xmlUrl'] ) ) {
+                update_post_meta( $order_id, '_NotaFiscalForAsaas_xml_url', esc_url_raw( $response['xmlUrl'] ) );
+            }
         }
 
         return $response;
@@ -146,10 +144,35 @@ class InvoiceController {
                 $asaas_ids[] = sanitize_text_field( $meta->value );
             }
         }
-        // Return the last asaas_id found
         if ( ! empty( $asaas_ids ) ) {
             return end( $asaas_ids );
         }
         return false;
+    }
+
+    /**
+     * Recupera os dados de uma nota fiscal específica pelo ID
+     *
+     * @param string $invoice_id ID da nota fiscal
+     * @return array|WP_Error Dados da nota fiscal ou objeto de erro
+     */
+    public function get_invoice_by_id( $invoice_id ) {
+        if ( empty( $invoice_id ) ) {
+            if ( $this->enable_logging ) {
+                wc_get_logger()->error( "ID da nota fiscal não informado.", array( 'source' => 'NotaFiscalForAsaas' ) );
+            }
+            return new WP_Error( 'invoice_id_not_found', 'ID da nota fiscal não informado.' );
+        }
+
+        $response = $this->asaas_service->get_invoice( $invoice_id );
+
+        if ( is_wp_error( $response ) ) {
+            if ( $this->enable_logging ) {
+                wc_get_logger()->error( "Falha ao recuperar nota fiscal: " . $response->get_error_message(), array( 'source' => 'NotaFiscalForAsaas' ) );
+            }
+            return $response;
+        }
+
+        return $response;
     }
 }
