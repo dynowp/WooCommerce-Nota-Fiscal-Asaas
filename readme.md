@@ -44,9 +44,8 @@ Com este plugin, você pode configurar as alíquotas fiscais, reter ISS, e autom
 ### 2. Emitir Nota Fiscal Manualmente:
    - Vá para **WooCommerce > Pedidos**.
    - Abra um pedido específico.
-   - No painel de ações do pedido, você verá a opção **"Emitir Nota Fiscal"**.
-   - Selecione essa ação e clique em **"Aplicar"**.
-   - Sua nota fiscal será emitida no mesmo dia.
+   - No painel de lateral do pedido, você verá a opção **"Emitir Nota Fiscal"**.
+   - Basta clicar e sua nota fiscal será emitida no mesmo dia.
 
 ## FAQ
 
@@ -76,8 +75,11 @@ Configure as opções de emissão automática, alíquotas fiscais e chave de API
 
 2. **Ação "Emitir Nota Fiscal" no Pedido:**
 Botão disponível na página de pedidos para emissão manual da nota fiscal.
-![Captura de tela 2024-10-20 004852](https://github.com/user-attachments/assets/bf6d0d90-d431-4524-893a-fd88b7856ea6)
+![capture_250314_232802](https://github.com/user-attachments/assets/e5319eaa-4c04-4931-b025-2f9513ef158f)
 
+2. **Ação "Baixar PDP ou XML:**
+Botão para realizar o donwload do arquivo PDF ou XML da nota fiscal emitida. 
+![capture_250314_232728](https://github.com/user-attachments/assets/4eda4109-649d-4553-922c-330fc173d807)
 
 ## API Asaas
 
