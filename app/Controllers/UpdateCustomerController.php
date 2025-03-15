@@ -4,11 +4,6 @@ namespace NotaFiscalForAsaas\Controllers;
 
 use NotaFiscalForAsaas\Services\UpdateCustomerService;
 use WC_Order;
-use WP_Error;
-
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
 
 class UpdateCustomerController {
     protected $update_customer_service;
